@@ -4,6 +4,7 @@
 // @author       You
 // @match        https://linuxfr.org/*
 // @run-at       document-body
+// @downloadURL  https://raw.githubusercontent.com/barmic/userScripts/master/plonk.js
 // ==/UserScript==
 (async () => {
     'use strict';
