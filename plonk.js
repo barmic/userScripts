@@ -1,19 +1,16 @@
 // ==UserScript==
 // @name         DLFPlonk
-// @namespace    DLFPlonk
 // @version      0.1
 // @author       You
 // @match        https://linuxfr.org/*
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
 // @run-at       document-body
 // ==/UserScript==
-(function() {
+(async () => {
     'use strict';
+  	const separator = '/';
     const storeName = '#stored_plonks';
-    const storedP = GM_getValue(storeName, "");
-    let plonks = storedP.split("/");
+    const storedP = await GM.getValue(storeName, "");
+    let plonks = storedP.split(separator);
 
     function hidePlonked() {
         for(let comment of document.querySelectorAll("span.posted_by_spanblock")) {
@@ -21,7 +18,7 @@
             const author = auth[auth.length - 1];
             if (plonks && plonks.includes(author)) {
                 let toBeHide = comment.parentNode.parentNode;
-                if (toBeHide.tagName == 'HEADER') {
+                if (toBeHide.tagName === 'HEADER') {
                     toBeHide.parentNode.style.display = 'none';
                 } else {
                     toBeHide.style.display = 'none';
@@ -31,13 +28,11 @@
     }
     function plonk(user) {
         plonks.push(user);
-        GM_setValue(storeName, plonks.join('/'));
-        hidePlonked();
+        GM.setValue(storeName, plonks.join(separator)).then((val) => hidePlonked());
     }
     function unplonk(user) {
         plonks = plonks.filter((val, idx, arr) => user !== val);
-        GM_setValue(storeName, plonks.join('/'));
-        hidePlonked();
+        GM.setValue(storeName, plonks.join(separator)).then((val) => hidePlonked());
     }
 
     // effective plonks
@@ -46,7 +41,7 @@
         const author = auth[auth.length - 1];
         if (plonks.includes(author)) {
             let toBeHide = comment.parentNode.parentNode;
-            if (toBeHide.tagName == 'HEADER') {
+            if (toBeHide.tagName === 'HEADER') {
                 toBeHide.parentNode.style.display = 'none';
             } else {
                 toBeHide.style.display = 'none';
@@ -55,7 +50,7 @@
             let hide = document.createElement("a");
             hide.textContent = '[✖]';
             hide.style = 'cursor: pointer';
-            hide.onclick = (ev) => {plonk(author);};
+            hide.onclick = (ev) => plonk(author);
             comment.prepend(hide);
         }
     }
@@ -80,7 +75,7 @@
         plonkUser.append(l);
         l.textContent = '[✖] ' + p;
         l.style = 'cursor: pointer';
-        l.onclick = (ev) => {unplonk(p);};
+        l.onclick = (ev) => unplonk(p);
         plonkList.append(plonkUser);
     }
     const plonkClear = document.createElement('a');
@@ -89,8 +84,7 @@
     plonkClear.style = 'cursor: pointer';
     plonkClear.onclick = (ev) => {
         plonks = [];
-        GM_deleteValue(storeName);
-        hidePlonked();
+        GM.deleteValue(storeName).then((v) => hidePlonked());
     };
 
 })();
